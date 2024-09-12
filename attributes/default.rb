@@ -24,6 +24,8 @@ default['fail2ban']['socket'] = '/var/run/fail2ban/fail2ban.sock'
 default['fail2ban']['pidfile'] = '/var/run/fail2ban/fail2ban.pid'
 default['fail2ban']['dbfile'] = '/var/lib/fail2ban/fail2ban.sqlite3'
 default['fail2ban']['dbpurgeage'] = 86_400
+default['fail2ban']['source_version'] = '1.1.0'
+default['fail2ban']['source_checksum'] = 'e2993b86607ccce4f487ea4b9ea5b67e21baef8980d084380ea4e03733b4500b'
 
 # jail.conf configuration options
 default['fail2ban']['ignoreip'] = '127.0.0.1/8'

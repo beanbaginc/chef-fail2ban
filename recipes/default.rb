@@ -18,11 +18,37 @@
 #
 
 # epel repository is needed for the fail2ban package on rhel
-include_recipe 'yum-epel' if platform_family?('rhel', 'amazon')
+if platform_family?('amazon') && node['platform_version'].to_i == 2023
+  fail2ban_version = node['fail2ban']['source_version']
+  fail2ban_zip_basename = "fil2ban-#{fail2ban_version}.zip"
+  fail2ban_zip = "#{Chef::Config[:file_cache_path]}/#{fail2ban_zip_basename}"
 
-package 'fail2ban' do
-  action :install
-  notifies :reload, 'ohai[reload package list]', :immediately
+  remote_file fail2ban_zip do
+    action :create
+    source "https://github.com/fail2ban/fail2ban/archive/refs/tags/#{fail2ban_version}.zip"
+    checksum node['fail2ban']['source_checksum']
+    owner 'root'
+    group 'root'
+    mode '0644'
+  end
+
+  bash 'compile-fail2ban' do
+    cwd Chef::Config[:file_cache_path]
+    code <<-EOF
+      unzip #{fail2ban_zip_basename}
+      cd fail2ban-#{fail2ban_version}
+      python3 setup.py install
+      cp build/fail2ban.service /etc/systemd/system/
+    EOF
+    creates '/usr/local/bin/fail2ban-client'
+  end
+else
+  include_recipe 'yum-epel' if platform_family?('rhel', 'amazon')
+
+  package 'fail2ban' do
+    action :install
+    notifies :reload, 'ohai[reload package list]', :immediately
+  end
 end
 
 if node['fail2ban']['slack_webhook']
