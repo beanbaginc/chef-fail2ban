@@ -20,7 +20,7 @@
 # epel repository is needed for the fail2ban package on rhel
 if platform_family?('amazon') && node['platform_version'].to_i == 2023
   fail2ban_version = node['fail2ban']['source_version']
-  fail2ban_zip_basename = "fil2ban-#{fail2ban_version}.zip"
+  fail2ban_zip_basename = "fail2ban-#{fail2ban_version}.zip"
   fail2ban_zip = "#{Chef::Config[:file_cache_path]}/#{fail2ban_zip_basename}"
 
   remote_file fail2ban_zip do
@@ -37,10 +37,10 @@ if platform_family?('amazon') && node['platform_version'].to_i == 2023
     code <<-EOF
       unzip #{fail2ban_zip_basename}
       cd fail2ban-#{fail2ban_version}
-      python3 setup.py install
+      python3 setup.py install --prefix=/usr
       cp build/fail2ban.service /etc/systemd/system/
     EOF
-    creates '/usr/local/bin/fail2ban-client'
+    creates '/usr/bin/fail2ban-client'
   end
 else
   include_recipe 'yum-epel' if platform_family?('rhel', 'amazon')
