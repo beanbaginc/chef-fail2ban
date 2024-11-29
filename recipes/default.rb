@@ -18,7 +18,7 @@
 #
 
 # epel repository is needed for the fail2ban package on rhel
-if platform_family?('amazon') && node['platform_version'].to_i == 2023
+if node['fail2ban']['install_source']
   fail2ban_version = node['fail2ban']['source_version']
   fail2ban_zip_basename = "fail2ban-#{fail2ban_version}.zip"
   fail2ban_zip = "#{Chef::Config[:file_cache_path]}/#{fail2ban_zip_basename}"
@@ -43,9 +43,9 @@ if platform_family?('amazon') && node['platform_version'].to_i == 2023
     creates '/usr/bin/fail2ban-client'
   end
 else
-  include_recipe 'yum-epel' if platform_family?('rhel', 'amazon')
+  include_recipe 'yum-epel' if node['fail2ban']['install_epel']
 
-  package 'fail2ban' do
+  package node['fail2ban']['package_name'] do
     action :install
     notifies :reload, 'ohai[reload package list]', :immediately
   end

@@ -26,6 +26,21 @@ default['fail2ban']['dbfile'] = '/var/lib/fail2ban/fail2ban.sqlite3'
 default['fail2ban']['dbpurgeage'] = 86_400
 default['fail2ban']['source_version'] = '1.1.0'
 default['fail2ban']['source_checksum'] = 'e2993b86607ccce4f487ea4b9ea5b67e21baef8980d084380ea4e03733b4500b'
+default['fail2ban']['install_source'] = false
+default['fail2ban']['install_epel'] = false
+default['fail2ban']['package_name'] = 'fail2ban'
+
+case node['platform_family']
+when 'amazon'
+  if node['platform_version'].to_i >= 2023
+    default['fail2ban']['package_name'] = 'fail2ban-all'
+  else
+    default['fail2ban']['install_epel'] = true
+  end
+
+when 'rhel'
+  default['fail2ban']['install_epel'] = true
+end
 
 # jail.conf configuration options
 default['fail2ban']['ignoreip'] = '127.0.0.1/8'
